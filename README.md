@@ -15,7 +15,7 @@ MemoStudy Agent 是一个本地优先的个人知识管理与学习助手。用�
 ## 核心能力
 
 - **专题知识库**：按研究主题管理资料，支持独立检索范围。
-- **多格式资料导入**：支持 PDF、TXT、Markdown、CSV、JSON 和文本粘贴。
+- **多格式资料导入**：支持 PDF、TXT、Markdown、CSV、JSON、文本粘贴和文件夹批量导入。
 - **本地知识检索**：自动清洗、切片和建立中文检索索引。
 - **可信智能问答**：回答严格结合知识库上下文，并展示原文引用。
 - **个人学习路径**：将学习目标自动拆分为五阶段可执行任务。
@@ -72,6 +72,15 @@ flowchart TB
 | 测试 | Pytest、TypeScript、Next.js Production Build |
 
 ## 快速开始
+
+### Windows 一键启动
+
+如果 Docker Desktop 安装在 `D:\app\docker\program`，可以直接双击项目根目录中的：
+
+- `start-memostudy.cmd`：启动 Docker、项目服务并打开浏览器
+- `stop-memostudy.cmd`：停止项目服务，保留知识库数据
+
+本机安装时还可以直接双击桌面的“启动 MemoStudy Agent”。
 
 ### 方式一：Docker Compose（推荐）
 

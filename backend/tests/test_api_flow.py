@@ -24,6 +24,14 @@ def test_complete_mvp_flow(tmp_path, monkeypatch):
         )
         assert source.status_code == 201
 
+        folder_source = client.post(
+            "/api/v1/sources/upload",
+            data={"collection_id": collection_id, "relative_path": "课程资料/第一章.md"},
+            files={"file": ("第一章.md", "向量检索按照语义相似度查找资料。", "text/markdown")},
+        )
+        assert folder_source.status_code == 201
+        assert folder_source.json()["title"] == "课程资料/第一章.md"
+
         answer = client.post(
             "/api/v1/chat/query",
             json={"query": "什么是 RAG？", "collection_id": collection_id},
@@ -49,6 +57,5 @@ def test_complete_mvp_flow(tmp_path, monkeypatch):
         assert report.status_code == 201
 
         dashboard = client.get("/api/v1/dashboard").json()
-        assert dashboard["counts"]["sources"] == 1
+        assert dashboard["counts"]["sources"] == 2
         assert dashboard["counts"]["reports"] == 1
-

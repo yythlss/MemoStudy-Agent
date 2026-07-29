@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
 
 type View = "dashboard" | "library" | "chat" | "study" | "reports";
@@ -170,7 +170,13 @@ function LibraryView({ collections, sources, busy, run }: { collections: Collect
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [newCollection, setNewCollection] = useState("");
+  const folderInputRef = useRef<HTMLInputElement>(null);
   const selected = collectionId || collections[0]?.id || "";
+
+  useEffect(() => {
+    folderInputRef.current?.setAttribute("webkitdirectory", "");
+    folderInputRef.current?.setAttribute("directory", "");
+  }, []);
 
   async function addText(event: FormEvent) {
     event.preventDefault();
@@ -179,12 +185,26 @@ function LibraryView({ collections, sources, busy, run }: { collections: Collect
       setTitle(""); setContent("");
     }, "资料已加入知识库");
   }
-  async function upload(file?: File) {
-    if (!file || !selected) return;
+  async function uploadFiles(fileList: FileList | null) {
+    if (!fileList || !selected) return;
+    const supported = new Set(["pdf", "txt", "md", "markdown", "csv", "json"]);
+    const files = Array.from(fileList).filter((file) => {
+      const extension = file.name.toLowerCase().split(".").pop() || "";
+      return supported.has(extension);
+    });
+    if (!files.length) return;
     await run(async () => {
-      const data = new FormData(); data.append("collection_id", selected); data.append("file", file);
-      await api("/sources/upload", { method: "POST", body: data });
-    }, "文件解析完成");
+      for (let index = 0; index < files.length; index += 3) {
+        await Promise.all(files.slice(index, index + 3).map(async (file) => {
+          const data = new FormData();
+          data.append("collection_id", selected);
+          data.append("file", file);
+          const relativePath = (file as File & { webkitRelativePath?: string }).webkitRelativePath;
+          if (relativePath) data.append("relative_path", relativePath);
+          await api("/sources/upload", { method: "POST", body: data });
+        }));
+      }
+    }, `已导入 ${files.length} 个文件`);
   }
   async function createCollection(event: FormEvent) {
     event.preventDefault();
@@ -197,7 +217,10 @@ function LibraryView({ collections, sources, busy, run }: { collections: Collect
     <div className="content">
       <div className="page-grid library-grid">
         <section className="panel form-panel"><div className="panel-head"><div><h3>添加资料</h3><p>上传文件或粘贴文本内容</p></div></div>
-          <label className="upload-box"><input type="file" accept=".pdf,.txt,.md,.markdown,.csv,.json" onChange={(e) => void upload(e.target.files?.[0])} disabled={busy || !selected} /><span>⇧</span><b>点击上传资料</b><small>支持 PDF、TXT、Markdown、CSV、JSON</small></label>
+          <div className="upload-actions">
+            <label className="upload-box"><input type="file" accept=".pdf,.txt,.md,.markdown,.csv,.json" onChange={(e) => { const input = e.currentTarget; void uploadFiles(input.files).finally(() => { input.value = ""; }); }} disabled={busy || !selected} /><span>⇧</span><b>上传文件</b><small>选择一份资料</small></label>
+            <label className="upload-box"><input ref={folderInputRef} type="file" multiple onChange={(e) => { const input = e.currentTarget; void uploadFiles(input.files).finally(() => { input.value = ""; }); }} disabled={busy || !selected} /><span>▦</span><b>导入文件夹</b><small>批量导入并保留路径</small></label>
+          </div>
           <div className="divider"><span>或粘贴文本</span></div>
           <form onSubmit={addText} className="form-stack"><label>所属知识库<select value={selected} onChange={(e) => setCollectionId(e.target.value)}>{collections.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label><label>资料标题<input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="例如：RAG 技术入门" required /></label><label>正文内容<textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="粘贴文章、课堂笔记或研究资料……" required /></label><button className="primary wide" disabled={busy || !selected}>{busy ? "处理中…" : "保存并建立索引"}</button></form>
         </section>

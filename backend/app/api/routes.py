@@ -129,9 +129,14 @@ def create_source(payload: SourceCreate) -> dict:
 
 
 @router.post("/sources/upload", status_code=201)
-async def upload_source(collection_id: str = Form(...), file: UploadFile = File(...)) -> dict:
-    title, content = await extract_upload(file)
-    suffix = title.lower().rsplit(".", 1)[-1] if "." in title else "text"
+async def upload_source(
+    collection_id: str = Form(...),
+    file: UploadFile = File(...),
+    relative_path: str | None = Form(None),
+) -> dict:
+    original_title, content = await extract_upload(file)
+    title = (relative_path or original_title).replace("\\", "/").strip("/")[:200]
+    suffix = original_title.lower().rsplit(".", 1)[-1] if "." in original_title else "text"
     return insert_source(
         SourceCreate(collection_id=collection_id, title=title, source_type=suffix, content=content)
     )
@@ -319,4 +324,3 @@ async def generate_report(payload: ReportRequest) -> dict:
             (item["id"], item["title"], item["topic"], item["content"], item["status"], item["created_at"]),
         )
     return item
-
