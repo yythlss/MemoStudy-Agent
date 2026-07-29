@@ -15,7 +15,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    title="深研 Studio API",
+    title="MemoStudy Agent API",
     description="个人知识管理与学习 Agent 后端服务",
     version="0.1.0",
     lifespan=lifespan,
@@ -33,4 +33,3 @@ app.include_router(router)
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "deepstudy-api", "version": "0.1.0"}
-

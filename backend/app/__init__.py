@@ -1,2 +1,1 @@
-"""深研 Studio backend package."""
-
+"""MemoStudy Agent backend package."""

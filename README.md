@@ -1,4 +1,4 @@
-# MemoStudy Agent · 深研 Studio
+# MemoStudy Agent
 
 > 将散落的文档和笔记转化为可检索、可问答、可复盘、可输出的个人知识系统。
 

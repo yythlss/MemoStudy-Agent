@@ -92,7 +92,7 @@ export default function Home() {
   return (
     <main className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><span className="brand-mark">深</span><span>深研 <b>Studio</b></span></div>
+        <div className="brand"><span className="brand-mark">M</span><span>MemoStudy <b>Agent</b></span></div>
         <div className="workspace"><span>个人工作空间</span><b>⌄</b></div>
         <nav>
           {nav.map((item) => (
@@ -244,4 +244,3 @@ function ReportsView({ collections, reports, busy, run }: { collections: Collect
 function Empty({ icon, title, text }: { icon: string; title: string; text: string }) {
   return <div className="empty"><span>{icon}</span><b>{title}</b><p>{text}</p></div>;
 }
-
