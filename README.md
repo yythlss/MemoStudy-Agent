@@ -75,12 +75,19 @@ flowchart TB
 
 ### Windows 一键启动
 
-如果 Docker Desktop 安装在 `D:\app\docker\program`，可以直接双击项目根目录中的：
+本项目已为 Windows 准备一键启动脚本。如果 Docker Desktop 安装在 `D:\app\docker\program`，可以直接双击项目根目录中的：
 
 - `start-memostudy.cmd`：启动 Docker、项目服务并打开浏览器
 - `stop-memostudy.cmd`：停止项目服务，保留知识库数据
 
-本机安装时还可以直接双击桌面的“启动 MemoStudy Agent”。
+本机安装时还可以直接双击桌面的“启动 MemoStudy Agent”。首次启动需要等待 Docker Desktop 和两个容器就绪；之后访问脚本自动打开的地址即可。
+
+本项目当前本机配置使用：
+
+- Web 工作台：<http://localhost:3001>
+- API 文档：<http://localhost:8000/docs>
+
+> 从 GitHub 新克隆项目时，默认前端端口为 `3000`。如需使用 `3001`，请在 `.env` 中设置 `FRONTEND_PORT=3001`。
 
 ### 方式一：Docker Compose（推荐）
 
@@ -109,6 +116,23 @@ docker compose down
 ```
 
 SQLite 数据保存在 Docker 命名卷 `deepstudy_data` 中，普通的 `docker compose down` 不会删除它。
+
+## 导入资料与文件夹
+
+进入“资料库”后，先选择或创建一个专题知识库，再使用以下任一方式导入：
+
+- **上传文件**：导入单个资料文件。
+- **导入文件夹**：选择一个本地文件夹，系统会递归读取其中受支持的文件并保留相对路径，例如 `课程资料/第一章/笔记.md`。
+- **粘贴文本**：直接录入文章、课堂笔记或研究材料。
+
+当前支持 PDF、TXT、Markdown（`.md` / `.markdown`）、CSV、JSON。文件夹导入会每次并发处理 3 个文件；单个文件最大可上传 **200MB**。
+
+如果上传时出现“请求失败，请稍后重试”：
+
+1. 确认 Docker Desktop 正在运行。
+2. 双击 `start-memostudy.cmd`，或在项目目录执行 `docker compose up -d`。
+3. 刷新 <http://localhost:3001> 后重试。
+4. 对于加密 PDF、扫描图片型 PDF 或空文件，应用会给出解析失败提示；请改用可复制文字的 PDF，或先进行 OCR。
 
 ### 方式二：本地开发
 
